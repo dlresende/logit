@@ -1,8 +1,7 @@
-package parser_test
+package log_test
 
 import (
-	. "logstreamer/parser"
-
+	. "logit/log"
 	"time"
 
 	. "github.com/onsi/ginkgo"

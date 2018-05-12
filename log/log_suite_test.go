@@ -1,4 +1,4 @@
-package parser_test
+package log_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -9,5 +9,5 @@ import (
 
 func TestParser(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Parser Suite")
+	RunSpecs(t, "Log Suite")
 }
