@@ -8,7 +8,7 @@ import (
 
 type LogEvent struct {
 	Level, Message string
-	Date           time.Time
+	When           time.Time
 }
 
 func Parse(logEvent string) LogEvent {
