@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"log"
 	"os"
+	"path"
 	"time"
 
 	l "logit/log"
@@ -27,11 +28,9 @@ func main() {
 	scanner := bufio.NewScanner(file)
 	scanner.Split(l.ChopLogEvent)
 	for scanner.Scan() {
-		// fmt.Println("NEW EVENT")
 		logEventStr := scanner.Text()
-		// fmt.Println(logEventStr)
 		logEvent := l.Parse(logEventStr)
-		commit(logEvent.Level+"\n\n"+logEvent.Message, "rabbit", logEvent.When)
+		commit(logEvent.Level+"\n\n"+logEvent.Message, path.Base(file.Name()), logEvent.When)
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -41,7 +40,8 @@ func main() {
 }
 
 func commit(message, branch string, when time.Time) {
-	fs := osfs.New("/tmp/logit")
+	gitDir := "/tmp/logit"
+	fs := osfs.New(gitDir)
 	var err error
 	dot, err := fs.Chroot(".git")
 	if err != nil {
@@ -55,12 +55,11 @@ func commit(message, branch string, when time.Time) {
 	var workTree *git.Worktree
 	var signature *object.Signature
 	var options *git.CommitOptions
-	var firstCommit plumbing.Hash
 
-	log.Println("Trying to open git repo")
+	log.Printf("Opening git repo %v...\n", gitDir)
 	repo, err = git.Open(storer, fs)
 	if err != nil {
-		log.Println("Git repo does not exist. Creating new one.")
+		log.Println("Git repo does not exist. Creating new one...")
 		repo, err = git.Init(storer, fs)
 		if err != nil {
 			log.Fatal(err)
@@ -73,23 +72,49 @@ func commit(message, branch string, when time.Time) {
 
 		signature = &object.Signature{Name: "logit", Email: "logit"}
 		options = &git.CommitOptions{All: false, Author: signature, Committer: signature}
-		log.Println("Creating first commit")
-		firstCommit, err = workTree.Commit("Initial commit", options)
+		log.Println("Creating first commit...")
+		_, err = workTree.Commit("Initial commit", options)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	log.Println("Looking for existing branch")
+	log.Printf("Looking for branch %s...\n", branch)
 	_, err = repo.Branch(branch)
 	if err != nil {
-		log.Println("Branch doesn't exist. Creating new one.")
-		err = repo.CreateBranch(&config.Branch{Name: "rabbit", Merge: "refs/heads/rabbit"})
+
+		workTree, err = repo.Worktree()
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Println("Creating reference for branch")
-		h := plumbing.NewHashReference("refs/heads/rabbit", firstCommit)
+
+		log.Printf("Checking out branch %v...\n", "master")
+		err = workTree.Checkout(&git.CheckoutOptions{
+			Branch: plumbing.Master, Create: false, Force: true,
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var masterHead *plumbing.Reference
+		masterHead, err = repo.Head()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Println("Branch doesn't exist. Creating new one...")
+		err = repo.CreateBranch(&config.Branch{Name: branch, Merge: plumbing.ReferenceName("refs/heads/" + branch)})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		_, err = repo.Branch(branch)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Printf("Creating reference for branch %v...\n", branch)
+		h := plumbing.NewHashReference(plumbing.ReferenceName("refs/heads/"+branch), masterHead.Hash())
 		if err = storer.SetReference(h); err != nil {
 			log.Fatal(err)
 		}
@@ -100,9 +125,9 @@ func commit(message, branch string, when time.Time) {
 		log.Fatal(err)
 	}
 
-	log.Println("Checking branch out")
+	log.Printf("Checking out branch %v...\n", branch)
 	err = workTree.Checkout(&git.CheckoutOptions{
-		Branch: "refs/heads/rabbit", Create: false, Force: true,
+		Branch: plumbing.ReferenceName("refs/heads/" + branch), Create: false, Force: true,
 	})
 	if err != nil {
 		log.Fatal(err)
