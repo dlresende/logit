@@ -1,7 +1,6 @@
 package log
 
 import (
-	"fmt"
 	"regexp"
 	"time"
 )
@@ -12,7 +11,6 @@ type LogEvent struct {
 }
 
 func Parse(logEvent string) LogEvent {
-	fmt.Printf(logEvent)
 	rabbitmqPattern := regexp.MustCompile(`(?s)^=(.*)====\s(.*)\s===\n(.*)`)
 	if rabbitmqPattern.MatchString(logEvent) {
 		logData := rabbitmqPattern.FindStringSubmatch(logEvent)

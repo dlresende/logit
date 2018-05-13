@@ -64,4 +64,26 @@ Licensed under the MPL.  See http://www.rabbitmq.com/
 		Expect(err).To(BeNil())
 	})
 
+	It("Should ignore text that does not match a log event", func() {
+		logFileContent := `
+**********************************************************
+*** Publishers will be blocked until this alarm clears ***
+**********************************************************
+
+=INFO REPORT==== 5-May-2018::16:26:52 ===
+Starting RabbitMQ 3.6.15 on Erlang 19.3.6.4
+Copyright (C) 2007-2018 Pivotal Software, Inc.
+Licensed under the MPL.  See http://www.rabbitmq.com/
+`
+
+		advance, token, err := ChopLogEvent([]byte(logFileContent), false)
+
+		Expect(string(token)).To(Equal(`=INFO REPORT==== 5-May-2018::16:26:52 ===
+Starting RabbitMQ 3.6.15 on Erlang 19.3.6.4
+Copyright (C) 2007-2018 Pivotal Software, Inc.
+Licensed under the MPL.  See http://www.rabbitmq.com/
+`))
+		Expect(advance).To(Equal(366))
+		Expect(err).To(BeNil())
+	})
 })
