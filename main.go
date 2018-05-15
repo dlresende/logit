@@ -7,10 +7,10 @@ import (
 	"path"
 	"time"
 
-	l "logit/log"
+	l "bitbucket.org/dlresende/logit/log"
 
 	"gopkg.in/src-d/go-billy.v4/osfs"
-	"gopkg.in/src-d/go-git.v4"
+	git "gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
@@ -133,7 +133,8 @@ func commit(message, branch string, when time.Time) {
 		log.Fatal(err)
 	}
 
-	signature = &object.Signature{Name: "logit", Email: "logit", When: when}
+	author := branch[:15]
+	signature = &object.Signature{Name: author, Email: author, When: when}
 	options = &git.CommitOptions{All: false, Author: signature, Committer: signature}
 	_, err = workTree.Commit(message, options)
 	if err != nil {
