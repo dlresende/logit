@@ -1,7 +1,9 @@
 package log
 
 import (
+	"log"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -11,11 +13,16 @@ type LogEvent struct {
 }
 
 func Parse(logEvent string) LogEvent {
-	rabbitmqPattern := regexp.MustCompile(`(?s)^=(.*)====\s(.*)\s===\n(.*)`)
+	rabbitmqPattern := regexp.MustCompile(`^(?:[[:space:]]|[A-Za-z]|\*)*(=(.*)====\s(.*)\s===\n((?:.+\n)+)\n)`)
 	if rabbitmqPattern.MatchString(logEvent) {
 		logData := rabbitmqPattern.FindStringSubmatch(logEvent)
-		logEventTime, _ := time.Parse("2-Jan-2006::15:4:5", logData[2])
-		return LogEvent{logData[1], logData[3], logEventTime}
+		logEventTime, err := time.Parse("2-Jan-2006::15:4:5", logData[3])
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		commitTitle := logData[4][:strings.Index(logData[4], "\n")]
+		return LogEvent{commitTitle, logData[1], logEventTime}
 	}
 	return LogEvent{}
 }
