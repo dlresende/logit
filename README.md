@@ -13,6 +13,8 @@ between log events.
 ## Usage
 
 ```shell
+$ go get gopkg.in/src-d/go-git.v4
+
 $ git run main.go rabbitmq@host1.log
 $ git run main.go rabbitmq@host2.log
 $ git run main.go rabbitmq@host3.log
