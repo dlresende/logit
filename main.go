@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 
 	git "github.com/dlresende/logit/git"
 	l "github.com/dlresende/logit/log"
@@ -28,7 +29,11 @@ func main() {
 	for scanner.Scan() {
 		logEventStr := scanner.Text()
 		logEvent := l.Parse(logEventStr)
-		repository.Commit(logEvent.Level+"\n\n"+logEvent.Message, path.Base(file.Name()), path.Base(file.Name())[:15], logEvent.When)
+		commitTitle := logEvent.Message[:strings.Index(logEvent.Message, "\n")]
+		commitDescription := logEvent.Level + "\n" + logEvent.Message
+		author := path.Base(file.Name())[:15]
+		branch := path.Base(file.Name())
+		repository.Commit(commitTitle+"\n\n"+commitDescription, author, branch, logEvent.When)
 	}
 
 	if err := scanner.Err(); err != nil {

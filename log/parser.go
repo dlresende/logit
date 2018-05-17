@@ -3,7 +3,6 @@ package log
 import (
 	"log"
 	"regexp"
-	"strings"
 	"time"
 )
 
@@ -22,8 +21,7 @@ func Parse(logEvent string) Event {
 			log.Fatalln(err)
 		}
 
-		commitTitle := logData[4][:strings.Index(logData[4], "\n")]
-		return Event{commitTitle, logData[1], logEventTime}
+		return Event{logData[2], logData[4], logEventTime}
 	}
 
 	return Event{}
