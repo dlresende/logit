@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"gopkg.in/src-d/go-billy.v4/osfs"
-	git "gopkg.in/src-d/go-git.v4"
+	goGit "gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
@@ -13,7 +13,7 @@ import (
 )
 
 type Repository struct {
-	gitRepo *git.Repository
+	gitRepo *goGit.Repository
 }
 
 func Init(gitDir string) (*Repository, error) {
@@ -30,15 +30,15 @@ func Init(gitDir string) (*Repository, error) {
 		return nil, err
 	}
 
-	var gitRepo *git.Repository
-	var workTree *git.Worktree
+	var gitRepo *goGit.Repository
+	var workTree *goGit.Worktree
 	var signature *object.Signature
-	var options *git.CommitOptions
+	var options *goGit.CommitOptions
 
-	gitRepo, err = git.Open(storer, fs)
+	gitRepo, err = goGit.Open(storer, fs)
 	if err != nil {
 		log.Printf("Git repo does not exist. Creating new one at %v...", gitDir)
-		gitRepo, err = git.Init(storer, fs)
+		gitRepo, err = goGit.Init(storer, fs)
 		if err != nil {
 			return nil, err
 		}
@@ -49,7 +49,7 @@ func Init(gitDir string) (*Repository, error) {
 		}
 
 		signature = &object.Signature{Name: "logit", Email: "logit"}
-		options = &git.CommitOptions{All: false, Author: signature, Committer: signature}
+		options = &goGit.CommitOptions{All: false, Author: signature, Committer: signature}
 		log.Println("Creating first commit...")
 		_, err = workTree.Commit("Initial commit", options)
 		if err != nil {
@@ -63,9 +63,9 @@ func Init(gitDir string) (*Repository, error) {
 func (repo *Repository) Commit(message, author, branch string, when time.Time) {
 	log.Printf("Looking for branch %s...\n", branch)
 	var err error
-	var workTree *git.Worktree
+	var workTree *goGit.Worktree
 	var signature *object.Signature
-	var options *git.CommitOptions
+	var options *goGit.CommitOptions
 	_, err = repo.gitRepo.Branch(branch)
 	if err != nil {
 
@@ -75,7 +75,7 @@ func (repo *Repository) Commit(message, author, branch string, when time.Time) {
 		}
 
 		log.Printf("Checking out branch %v...\n", "master")
-		err = workTree.Checkout(&git.CheckoutOptions{
+		err = workTree.Checkout(&goGit.CheckoutOptions{
 			Branch: plumbing.Master, Create: false, Force: true,
 		})
 		if err != nil {
@@ -112,7 +112,7 @@ func (repo *Repository) Commit(message, author, branch string, when time.Time) {
 	}
 
 	log.Printf("Checking out branch %v...\n", branch)
-	err = workTree.Checkout(&git.CheckoutOptions{
+	err = workTree.Checkout(&goGit.CheckoutOptions{
 		Branch: plumbing.ReferenceName("refs/heads/" + branch), Create: false, Force: true,
 	})
 	if err != nil {
@@ -120,7 +120,7 @@ func (repo *Repository) Commit(message, author, branch string, when time.Time) {
 	}
 
 	signature = &object.Signature{Name: author, Email: author, When: when}
-	options = &git.CommitOptions{All: false, Author: signature, Committer: signature}
+	options = &goGit.CommitOptions{All: false, Author: signature, Committer: signature}
 	_, err = workTree.Commit(message, options)
 	if err != nil {
 		log.Fatal(err)
