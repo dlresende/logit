@@ -1,7 +1,7 @@
 package log_test
 
 import (
-	. "bitbucket.org/dlresende/logit/log"
+	. "github.com/dlresende/logit/log"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

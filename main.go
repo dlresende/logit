@@ -6,8 +6,8 @@ import (
 	"os"
 	"path"
 
-	git "bitbucket.org/dlresende/logit/git"
-	l "bitbucket.org/dlresende/logit/log"
+	git "github.com/dlresende/logit/git"
+	l "github.com/dlresende/logit/log"
 )
 
 func main() {

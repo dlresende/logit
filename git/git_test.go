@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	git "bitbucket.org/dlresende/logit/git"
+	git "github.com/dlresende/logit/git"
 )
 
 var _ = Describe("Git", func() {
