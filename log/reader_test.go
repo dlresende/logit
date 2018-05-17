@@ -24,7 +24,7 @@ sasl log       : /var/vcap/sys/log/rabbitmq-server/rabbit@6b44fa337952635b266d4c
 database dir   : /var/vcap/store/rabbitmq/mnesia/db
 
 `
-		advance, token, err := ChopLogEvent([]byte(logFileContent), false)
+		advance, token, err := ChopEvent([]byte(logFileContent), false)
 
 		Expect(string(token)).To(Equal(`=INFO REPORT==== 5-May-2018::16:26:52 ===
 Starting RabbitMQ 3.6.15 on Erlang 19.3.6.4
@@ -45,7 +45,7 @@ Copyright (C) 2007-2018 Pivotal Software, Inc.
 Licensed under the MPL.  See http://www.rabbitmq.com/
 
 `
-		advance, token, err := ChopLogEvent([]byte(logFileContent), false)
+		advance, token, err := ChopEvent([]byte(logFileContent), false)
 
 		Expect(string(token)).To(Equal(`=INFO REPORT==== 5-May-2018::16:26:52 ===
 Starting RabbitMQ 3.6.15 on Erlang 19.3.6.4
@@ -61,7 +61,7 @@ Licensed under the MPL.  See http://www.rabbitmq.com/
 	It("Should ask for more text when multi-line RabbitMQ log event is not complete", func() {
 		logFileContent := `=INFO REPORT==== 5-May-2018::16:26:52 ===
 `
-		advance, token, err := ChopLogEvent([]byte(logFileContent), false)
+		advance, token, err := ChopEvent([]byte(logFileContent), false)
 
 		Expect(token).To(BeNil())
 		Expect(advance).To(Equal(0))
@@ -81,7 +81,7 @@ Licensed under the MPL.  See http://www.rabbitmq.com/
 
 `
 
-		advance, token, err := ChopLogEvent([]byte(logFileContent), false)
+		advance, token, err := ChopEvent([]byte(logFileContent), false)
 
 		Expect(string(token)).To(Equal(`=INFO REPORT==== 5-May-2018::16:26:52 ===
 Starting RabbitMQ 3.6.15 on Erlang 19.3.6.4

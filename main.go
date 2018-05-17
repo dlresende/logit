@@ -24,7 +24,7 @@ func main() {
 	}
 
 	scanner := bufio.NewScanner(file)
-	scanner.Split(l.ChopLogEvent)
+	scanner.Split(l.ChopEvent)
 	for scanner.Scan() {
 		logEventStr := scanner.Text()
 		logEvent := l.Parse(logEventStr)
