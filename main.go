@@ -2,20 +2,20 @@ package main
 
 import (
 	"bufio"
-	"log"
+	logger "log"
 	"os"
 	"path"
 	"strings"
 
 	git "github.com/dlresende/logit/git"
-	l "github.com/dlresende/logit/log"
+	log "github.com/dlresende/logit/log"
 )
 
 func main() {
 	filepath := os.Args[1]
 	file, err := os.Open(filepath)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	defer file.Close()
 
@@ -25,10 +25,10 @@ func main() {
 	}
 
 	scanner := bufio.NewScanner(file)
-	scanner.Split(l.ChopEvent)
+	scanner.Split(log.ChopEvent)
 	for scanner.Scan() {
 		logEventStr := scanner.Text()
-		logEvent := l.Parse(logEventStr)
+		logEvent := log.Parse(logEventStr)
 		commitTitle := logEvent.Message[:strings.Index(logEvent.Message, "\n")]
 		commitDescription := logEvent.Level + "\n" + logEvent.Message
 		author := path.Base(file.Name())[:15]
@@ -37,6 +37,6 @@ func main() {
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 }
