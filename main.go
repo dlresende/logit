@@ -21,7 +21,7 @@ func main() {
 
 	repository, err := git.Init("/tmp/logit")
 	if err != nil {
-		panic(err)
+		logger.Fatal(err)
 	}
 
 	scanner := bufio.NewScanner(file)
