@@ -1,4 +1,4 @@
-package log_test
+package rabbitmqparser_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -9,5 +9,5 @@ import (
 
 func TestParser(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Log Suite")
+	RunSpecs(t, "RabbitmMQ Log Parser Suite")
 }
